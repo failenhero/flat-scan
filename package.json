@@ -1,0 +1,18 @@
+{
+  "name": "flats-scan",
+  "version": "1.0.0",
+  "description": "Watcher for new rental flats in Gernsheim am Rhein on bgried.de",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test --test-reporter=spec",
+    "start": "node src/index.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "nodemailer": "^6.9.0"
+  }
+}

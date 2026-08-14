@@ -1,0 +1,17 @@
+services:
+  flats-scan:
+    build: .
+    container_name: flats-scan
+    restart: unless-stopped
+    env_file: .env
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      # Create ./state yourself before `up` (mkdir -p state) so it is owned by
+      # the deploying user. If Docker auto-creates it, it is owned by root and
+      # the UID-1000 container cannot write state.json / last-tick.
+      - ./state:/data
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
