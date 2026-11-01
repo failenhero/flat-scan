@@ -10,10 +10,18 @@ const grossGerau = {
   thumbnailUrl: '',
 };
 
-const gernsheimerStrInGG = {
+const nauheim = {
+  uuid: '88888888-8888-8888-8888-888888888888',
+  title: 'flat in Nauheim',
+  address: 'Waldstraße 4, 64569 Nauheim',
+  url: 'https://example.com/h/',
+  thumbnailUrl: '',
+};
+
+const gernsheimerStrInRiedstadt = {
   uuid: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
   title: 'flat on Gernsheimer Straße',
-  address: 'Gernsheimer Straße 10, 64521 Groß-Gerau',
+  address: 'Gernsheimer Straße 10, 64560 Riedstadt',
   url: 'https://example.com/b/',
   thumbnailUrl: '',
 };
@@ -76,12 +84,16 @@ test('targetAreasOnly keeps listings with postal code 68647', () => {
   assert.deepEqual(targetAreasOnly([biblis]), [biblis]);
 });
 
-test('targetAreasOnly drops listings with other postal codes', () => {
-  assert.deepEqual(targetAreasOnly([grossGerau]), []);
+test('targetAreasOnly keeps listings with postal code 64521', () => {
+  assert.deepEqual(targetAreasOnly([grossGerau]), [grossGerau]);
 });
 
-test('targetAreasOnly does not false-match "Gernsheimer Straße" in Groß-Gerau', () => {
-  assert.deepEqual(targetAreasOnly([gernsheimerStrInGG]), []);
+test('targetAreasOnly drops listings with other postal codes', () => {
+  assert.deepEqual(targetAreasOnly([nauheim]), []);
+});
+
+test('targetAreasOnly does not false-match "Gernsheimer Straße" in another town', () => {
+  assert.deepEqual(targetAreasOnly([gernsheimerStrInRiedstadt]), []);
 });
 
 test('targetAreasOnly does not match 64579 as substring of a larger number', () => {
@@ -89,8 +101,10 @@ test('targetAreasOnly does not match 64579 as substring of a larger number', () 
 });
 
 test('targetAreasOnly preserves order and keeps only target-area entries from a mixed list', () => {
-  const result = targetAreasOnly([grossGerau, gernsheim, gernsheimerStrInGG, biebesheim, stockstadt, noisy64579Substring, biblis]);
-  assert.deepEqual(result, [gernsheim, biebesheim, stockstadt, biblis]);
+  const result = targetAreasOnly([
+    grossGerau, nauheim, gernsheim, gernsheimerStrInRiedstadt, biebesheim, stockstadt, noisy64579Substring, biblis,
+  ]);
+  assert.deepEqual(result, [grossGerau, gernsheim, biebesheim, stockstadt, biblis]);
 });
 
 test('targetAreasOnly tolerates missing or null address', () => {
