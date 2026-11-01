@@ -14,13 +14,13 @@ async function freshTmpDir() {
   return mkdtemp(join(tmpdir(), 'flats-scan-int-'));
 }
 
-// The raw fixture contains a 64584 Biebesheim listing; drop it so the
+// The raw fixture contains 64584 Biebesheim and 64521 Groß-Gerau listings; drop them so the
 // baseline has no target-area entries.
 async function fixtureWithoutTargetEntries() {
   const html = await readFile(FIXTURE, 'utf8');
   const $ = cheerio.load(html);
   $('div.property')
-    .filter((_, el) => /\b(?:64579|64584|64589|68647)\b/.test($(el).find('.property-subtitle').text()))
+    .filter((_, el) => /\b(?:64579|64584|64589|68647|64521)\b/.test($(el).find('.property-subtitle').text()))
     .remove();
   return $.html();
 }

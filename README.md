@@ -1,7 +1,7 @@
 # flats-scan
 
 Watcher for new rental flats in **Gernsheim am Rhein** (64579), **Biebesheim am Rhein** (64584),
-**Stockstadt am Rhein** (64589) and **Biblis** (68647) on
+**Stockstadt am Rhein** (64589), **Biblis** (68647) and **Groß-Gerau** (64521) on
 <https://bgried.de/unsere-angebote/>. Every 5 minutes it polls the underlying
 listings source, detects newly-appeared flats there, and emails them to an
 inbox of your choice via Brevo SMTP.
@@ -18,9 +18,9 @@ server-renders all listings as HTML. Each listing has a stable UUID. The app:
 
 1. **fetches** that page (30s timeout, one retry),
 2. **parses** the listings out of the HTML,
-3. **filters** to postal codes 64579 (Gernsheim — not the "Gernsheimer Straße"
-   head office in Groß-Gerau), 64584 (Biebesheim), 64589 (Stockstadt) and
-   68647 (Biblis),
+3. **filters** by postal code — 64579 (Gernsheim), 64584 (Biebesheim),
+   64589 (Stockstadt), 68647 (Biblis), 64521 (Groß-Gerau) — never by town
+   name, so e.g. a "Gernsheimer Straße" elsewhere doesn't match,
 4. **diffs** against the UUIDs it has already seen (stored in `state/state.json`),
 5. **emails** one message per genuinely new listing,
 6. **writes a heartbeat** file that the Docker healthcheck watches.
@@ -33,7 +33,7 @@ trigger an email.
 
 ```bash
 npm install
-npm test        # 47 tests
+npm test        # 48 tests
 ```
 
 ## Email sending (Brevo)
