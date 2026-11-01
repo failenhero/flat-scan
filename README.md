@@ -117,9 +117,27 @@ tick ok
 
 ## Upgrade
 
+Releases are automatic: every merge to `main` runs
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), which runs the
+tests, rsyncs the code to the server (never touching `.env` or `state/`) and
+runs `docker compose up -d --build`. Pull requests run the tests only. A deploy
+can also be started by hand from the *Actions* tab (*Run workflow*).
+
+Required repository secrets (*Settings → Secrets and variables → Actions*):
+
+| Secret | Example |
+|---|---|
+| `DEPLOY_HOST` | `203.0.113.10` |
+| `DEPLOY_USER` | `deploy` (must be in the `docker` group) |
+| `DEPLOY_PATH` | `/home/deploy/apps/flats-scan` |
+| `DEPLOY_SSH_KEY` | private key whose public half is in the server's `authorized_keys` |
+| `DEPLOY_KNOWN_HOSTS` | output of `ssh-keyscan -t ed25519 <host>` |
+
+Manual fallback:
+
 ```bash
 cd ~/apps/flats-scan
-rsync -a --delete <laptop-path>/ ./
+rsync -a --delete --exclude .env --exclude state/ <laptop-path>/ ./
 docker compose up -d --build            # state volume preserved
 ```
 
