@@ -14,8 +14,19 @@ async function freshTmpDir() {
   return mkdtemp(join(tmpdir(), 'flats-scan-int-'));
 }
 
-async function fixtureWithGernsheimEntry() {
+// The raw fixture contains a 64584 Biebesheim listing; drop it so the
+// baseline has no target-area entries.
+async function fixtureWithoutTargetEntries() {
   const html = await readFile(FIXTURE, 'utf8');
+  const $ = cheerio.load(html);
+  $('div.property')
+    .filter((_, el) => /\b(?:64579|64584|64589|68647)\b/.test($(el).find('.property-subtitle').text()))
+    .remove();
+  return $.html();
+}
+
+async function fixtureWithGernsheimEntry() {
+  const html = await fixtureWithoutTargetEntries();
   const $ = cheerio.load(html);
   // Take the first listing and rewrite its address to Gernsheim
   const first = $('div.property').first();
@@ -53,7 +64,7 @@ function makeDeps({ html, statePath, heartbeatPath }) {
 test('first run with no Gernsheim listings: no emails, baseline empty, heartbeat written', async () => {
   const dir = await freshTmpDir();
   try {
-    const html = await readFile(FIXTURE, 'utf8');
+    const html = await fixtureWithoutTargetEntries();
     const { sent, deps } = makeDeps({
       html,
       statePath: join(dir, 'state.json'),
@@ -114,7 +125,7 @@ test('second run with same Gernsheim listing: no emails (already seen)', async (
 test('second run with NEW Gernsheim listing: email sent, state updated', async () => {
   const dir = await freshTmpDir();
   try {
-    const baselineHtml = await readFile(FIXTURE, 'utf8'); // no Gernsheim
+    const baselineHtml = await fixtureWithoutTargetEntries(); // no Gernsheim
     const newHtml = await fixtureWithGernsheimEntry(); // 1 Gernsheim
 
     const statePath = join(dir, 'state.json');
@@ -173,7 +184,7 @@ test('fetch failure: state untouched, heartbeat NOT updated', async () => {
     const heartbeatPath = join(dir, 'last-tick');
 
     // Seed
-    const seedHtml = await readFile(FIXTURE, 'utf8');
+    const seedHtml = await fixtureWithoutTargetEntries();
     const seed = makeDeps({ html: seedHtml, statePath, heartbeatPath });
     await check(seed.deps);
     const stateBefore = await readFile(statePath, 'utf8');
@@ -210,7 +221,7 @@ test('mailer failure: UUID NOT marked seen, retried next tick', async () => {
 
     // Bootstrap with no Gernsheim listings
     const baseline = makeDeps({
-      html: await readFile(FIXTURE, 'utf8'),
+      html: await fixtureWithoutTargetEntries(),
       statePath,
       heartbeatPath,
     });

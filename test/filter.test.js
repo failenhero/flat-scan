@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { gernsheimOnly } from '../src/filter.js';
+import { targetAreasOnly } from '../src/filter.js';
 
 const grossGerau = {
   uuid: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
@@ -26,6 +26,30 @@ const gernsheim = {
   thumbnailUrl: '',
 };
 
+const biebesheim = {
+  uuid: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
+  title: 'flat in Biebesheim',
+  address: 'Musterweg 3, 64584 Biebesheim am Rhein',
+  url: 'https://example.com/e/',
+  thumbnailUrl: '',
+};
+
+const stockstadt = {
+  uuid: 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+  title: 'flat in Stockstadt',
+  address: 'Rheinstraße 7, 64589 Stockstadt am Rhein',
+  url: 'https://example.com/f/',
+  thumbnailUrl: '',
+};
+
+const biblis = {
+  uuid: '99999999-9999-9999-9999-999999999999',
+  title: 'flat in Biblis',
+  address: 'Darmstädter Straße 2, 68647 Biblis',
+  url: 'https://example.com/g/',
+  thumbnailUrl: '',
+};
+
 const noisy64579Substring = {
   uuid: 'dddddddd-dddd-dddd-dddd-dddddddddddd',
   title: 'flat in Wiesbaden — irrelevant',
@@ -36,28 +60,40 @@ const noisy64579Substring = {
   thumbnailUrl: '',
 };
 
-test('gernsheimOnly keeps listings with postal code 64579', () => {
-  assert.deepEqual(gernsheimOnly([gernsheim]), [gernsheim]);
+test('targetAreasOnly keeps listings with postal code 64579', () => {
+  assert.deepEqual(targetAreasOnly([gernsheim]), [gernsheim]);
 });
 
-test('gernsheimOnly drops listings with other postal codes', () => {
-  assert.deepEqual(gernsheimOnly([grossGerau]), []);
+test('targetAreasOnly keeps listings with postal code 64584', () => {
+  assert.deepEqual(targetAreasOnly([biebesheim]), [biebesheim]);
 });
 
-test('gernsheimOnly does not false-match "Gernsheimer Straße" in Groß-Gerau', () => {
-  assert.deepEqual(gernsheimOnly([gernsheimerStrInGG]), []);
+test('targetAreasOnly keeps listings with postal code 64589', () => {
+  assert.deepEqual(targetAreasOnly([stockstadt]), [stockstadt]);
 });
 
-test('gernsheimOnly does not match 64579 as substring of a larger number', () => {
-  assert.deepEqual(gernsheimOnly([noisy64579Substring]), []);
+test('targetAreasOnly keeps listings with postal code 68647', () => {
+  assert.deepEqual(targetAreasOnly([biblis]), [biblis]);
 });
 
-test('gernsheimOnly preserves order and keeps only Gernsheim entries from a mixed list', () => {
-  const result = gernsheimOnly([grossGerau, gernsheim, gernsheimerStrInGG, noisy64579Substring]);
-  assert.deepEqual(result, [gernsheim]);
+test('targetAreasOnly drops listings with other postal codes', () => {
+  assert.deepEqual(targetAreasOnly([grossGerau]), []);
 });
 
-test('gernsheimOnly tolerates missing or null address', () => {
+test('targetAreasOnly does not false-match "Gernsheimer Straße" in Groß-Gerau', () => {
+  assert.deepEqual(targetAreasOnly([gernsheimerStrInGG]), []);
+});
+
+test('targetAreasOnly does not match 64579 as substring of a larger number', () => {
+  assert.deepEqual(targetAreasOnly([noisy64579Substring]), []);
+});
+
+test('targetAreasOnly preserves order and keeps only target-area entries from a mixed list', () => {
+  const result = targetAreasOnly([grossGerau, gernsheim, gernsheimerStrInGG, biebesheim, stockstadt, noisy64579Substring, biblis]);
+  assert.deepEqual(result, [gernsheim, biebesheim, stockstadt, biblis]);
+});
+
+test('targetAreasOnly tolerates missing or null address', () => {
   const broken = { ...gernsheim, address: undefined };
-  assert.deepEqual(gernsheimOnly([broken]), []);
+  assert.deepEqual(targetAreasOnly([broken]), []);
 });
