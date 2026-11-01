@@ -12,7 +12,7 @@ const sample = {
 
 test('buildEmail produces subject, html and text bodies', () => {
   const { subject, html, text } = buildEmail(sample);
-  assert.match(subject, /^Neue Gernsheim-Wohnung:/);
+  assert.match(subject, /^Neue Wohnung:/);
   assert.match(subject, /Schöne 3-Zimmer Wohnung/);
 
   assert.match(html, /<strong>Schöne 3-Zimmer Wohnung<\/strong>/);

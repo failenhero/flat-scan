@@ -1,7 +1,7 @@
 import { loadConfig } from './config.js';
 import { fetchHtml } from './fetcher.js';
 import { parse } from './parser.js';
-import { gernsheimOnly } from './filter.js';
+import { targetAreasOnly } from './filter.js';
 import { load as loadState, save as saveState } from './state.js';
 import { buildTransporter, buildEmail, send as sendMail } from './mailer.js';
 import { touch as touchHeartbeat } from './heartbeat.js';
@@ -11,7 +11,7 @@ export async function check(deps) {
     config,
     fetchFn = (url, opts) => fetchHtml(url, opts),
     parseFn = parse,
-    filterFn = gernsheimOnly,
+    filterFn = targetAreasOnly,
     loadStateFn = loadState,
     saveStateFn = saveState,
     mailerFn,
